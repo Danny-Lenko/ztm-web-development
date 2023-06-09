@@ -1,9 +1,10 @@
 import express from "express";
 import bodyParser from "body-parser";
+import cors from "cors";
 import bcrypt from "bcrypt";
 
 const app = express();
-const port = 3000;
+const port = 8080;
 
 const db = {
   users: [
@@ -27,6 +28,7 @@ const db = {
 };
 
 app.use(bodyParser.json());
+app.use(cors());
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
@@ -37,21 +39,21 @@ app.post("/signin", (req, res) => {
     req.body.email === db.users[0].email &&
     req.body.password === db.users[0].password
   ) {
-    console.log(
-      "true:",
-      bcrypt.compareSync(
-        "ann",
-        "$2b$10$NtWH8mhMYQOpSIi3IEFtm.ex/nZcyQhoH30c0gvSD8lF/FtQwn8je"
-      )
-    ); // true
-    console.log(
-      "false:",
-      bcrypt.compareSync(
-        "apple",
-        "$2b$10$NtWH8mhMYQOpSIi3IEFtm.ex/nZcyQhoH30c0gvSD8lF/FtQwn8je"
-      ) // false
-    );
-    res.json("signed in");
+    // console.log(
+    //   "true:",
+    //   bcrypt.compareSync(
+    //     "ann",
+    //     "$2b$10$NtWH8mhMYQOpSIi3IEFtm.ex/nZcyQhoH30c0gvSD8lF/FtQwn8je"
+    //   )
+    // ); // true
+    // console.log(
+    //   "false:",
+    //   bcrypt.compareSync(
+    //     "apple",
+    //     "$2b$10$NtWH8mhMYQOpSIi3IEFtm.ex/nZcyQhoH30c0gvSD8lF/FtQwn8je"
+    //   ) // false
+    // );
+    res.json(db.users[0]);
   } else {
     res.status(400).json("wrong email or password");
   }
