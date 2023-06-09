@@ -1,11 +1,14 @@
 import { useState } from "react";
 import axios from "axios";
 
+import { User } from "../../App";
+
 type Props = {
   changePath: (path: string) => void;
+  setUser: (user: User) => void;
 };
 
-export const SignIn: React.FC<Props> = ({ changePath }) => {
+export const SignIn: React.FC<Props> = ({ changePath, setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -30,9 +33,10 @@ export const SignIn: React.FC<Props> = ({ changePath }) => {
         password,
       })
       .then((res) => {
-        console.log(res.data);
+        setUser(res.data);
         changePath("home");
       })
+
       .catch(console.log);
   };
 

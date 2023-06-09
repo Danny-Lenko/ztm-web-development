@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import ParticlesBg from "particles-bg";
+
 import {
   Navigation,
   Logo,
@@ -8,8 +10,9 @@ import {
   SignIn,
   Register,
 } from "./components";
-import ParticlesBg from "particles-bg";
+
 import "./App.css";
+import axios from "axios";
 
 const PAT = "4449b2845cd94e64b8b1c7e75f2df75f";
 const USER_ID = "devdanny";
@@ -23,6 +26,13 @@ export type FaceCoords = {
   bottomRow: number;
 };
 
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  score: string;
+};
+
 function App() {
   const [inputValue, setInputValue] = useState("");
   const [imageWidth, setImageWidth] = useState(0);
@@ -30,6 +40,7 @@ function App() {
   const [buttonIsActive, setButtonIsActive] = useState(false);
   const [faceBox, setFaceBox] = useState<FaceCoords | null>(null);
   const [path, setPath] = useState("signin");
+  const [user, setUser] = useState<User>();
 
   const changePath = (path: string) => {
     setPath(path);
@@ -47,8 +58,15 @@ function App() {
       requestOptions
     )
       .then((response) => response.json())
-      .then((result) => calculateFaceLocation(result))
+      .then((result) => {
+        calculateFaceLocation(result);
+      })
       .catch((error) => console.log("error", error));
+
+    axios
+      .put("http://localhost:8080/image", { id: user?.id })
+      .then((res) => setUser(res.data))
+      .catch(console.log);
   };
 
   const calculateFaceLocation = (data: any) => {
@@ -116,13 +134,13 @@ function App() {
       <ParticlesBg type="cobweb" bg={true} num={200} color={"#ffffff"} />
       <Navigation changePath={changePath} path={path} />
       {path === "signin" ? (
-        <SignIn changePath={changePath} />
+        <SignIn setUser={setUser} changePath={changePath} />
       ) : path === "register" ? (
         <Register changePath={changePath} />
       ) : (
         <>
           <Logo />
-          <Rank name={"Valerii"} entries={"#1"} />
+          {user && <Rank name={user.name} entries={user.score} />}
           <InputForm
             onInputChange={handleInputChange}
             onButtonSubmit={handleSubmit}

@@ -55,7 +55,15 @@ app.post("/signin", (req, res) => {
     //     "$2b$10$NtWH8mhMYQOpSIi3IEFtm.ex/nZcyQhoH30c0gvSD8lF/FtQwn8je"
     //   ) // false
     // );
-    res.json(user);
+    const { id, name, email, score, joined } = user;
+    const userSecure = {
+      id,
+      name,
+      email,
+      score,
+      joined,
+    };
+    res.json(userSecure);
   } else {
     res.status(400).json("wrong email or password");
   }
@@ -97,7 +105,7 @@ app.put("/image", (req, res) => {
     db.users = db.users.map((user) =>
       user.id === id ? { ...user, score: user.score + 1 } : user
     );
-    res.json(db.users);
+    res.json(db.users.find((user) => user.id === id));
   } else {
     res.status(400).json("user not found");
   }
@@ -108,6 +116,6 @@ app.listen(port, () => {
 });
 
 function setId(arr) {
-  const lastId = arr[arr.length - 1].id
-  return +lastId + 1 + ''
+  const lastId = arr[arr.length - 1].id;
+  return +lastId + 1 + "";
 }
