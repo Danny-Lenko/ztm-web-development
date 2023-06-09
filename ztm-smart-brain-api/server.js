@@ -35,10 +35,12 @@ app.get("/", (req, res) => {
 });
 
 app.post("/signin", (req, res) => {
-  if (
-    req.body.email === db.users[0].email &&
-    req.body.password === db.users[0].password
-  ) {
+  const { email, password } = req.body;
+  const user = db.users.filter(
+    (user) => email === user.email && password === user.password
+  )[0];
+
+  if (user) {
     // console.log(
     //   "true:",
     //   bcrypt.compareSync(
@@ -53,7 +55,7 @@ app.post("/signin", (req, res) => {
     //     "$2b$10$NtWH8mhMYQOpSIi3IEFtm.ex/nZcyQhoH30c0gvSD8lF/FtQwn8je"
     //   ) // false
     // );
-    res.json(db.users[0]);
+    res.json(user);
   } else {
     res.status(400).json("wrong email or password");
   }
@@ -61,13 +63,13 @@ app.post("/signin", (req, res) => {
 
 app.post("/register", (req, res) => {
   const { name, email, password } = req.body;
-  const saltRounds = 10;
 
-  const hash = bcrypt.hashSync(password, saltRounds);
-  console.log(hash);
+  // const saltRounds = 10;
+  // const hash = bcrypt.hashSync(password, saltRounds);
+  // console.log(hash);
 
   db.users.push({
-    id: "113",
+    id: setId(db.users),
     name: name,
     email: email,
     password: password,
@@ -104,3 +106,8 @@ app.put("/image", (req, res) => {
 app.listen(port, () => {
   console.log(`smart-brain app listening on port ${port}`);
 });
+
+function setId(arr) {
+  const lastId = arr[arr.length - 1].id
+  return +lastId + 1 + ''
+}
