@@ -9,37 +9,16 @@ const db = knex({
   connection: {
     host: "127.0.0.1",
     // port : 3306,
-    user : 'postgres',
-    password : 'ewq321',
+    user: "postgres",
+    password: "ewq321",
     database: "smart-brain",
   },
 });
 
-db.select('*').from('users').then(console.log);
+db.select("*").from("users").then(console.log);
 
 const app = express();
 const port = 8080;
-
-// const db = {
-//   users: [
-//     {
-//       id: "111",
-//       name: "John",
-//       email: "john@gmail.com",
-//       password: "john",
-//       score: 0,
-//       joined: new Date(),
-//     },
-//     {
-//       id: "112",
-//       name: "Jack",
-//       email: "jack@gmail.com",
-//       password: "jack",
-//       score: 0,
-//       joined: new Date(),
-//     },
-//   ],
-// };
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -90,22 +69,17 @@ app.post("/register", (req, res) => {
   // const hash = bcrypt.hashSync(password, saltRounds);
   // console.log(hash);
 
-  db('users').insert({
-    name,
-    email,
-    joined: new Date()
-  }).then(console.log)
-
-  // db.users.push({
-  //   id: setId(db.users),
-  //   name: name,
-  //   email: email,
-  //   password: password,
-  //   score: 0,
-  //   joined: new Date(),
-  // });
-
-  res.json(db.users);
+  db("users")
+    .returning("*")
+    .insert({
+      name,
+      email,
+      joined: new Date(),
+    })
+    .then((user) => {
+      res.json(user[0]);
+    })
+    .catch((err) => res.status(400).json("failed to register user"));
 });
 
 app.get("/profile/:id", (req, res) => {
@@ -119,16 +93,13 @@ app.get("/profile/:id", (req, res) => {
 
 app.put("/image", (req, res) => {
   const { id } = req.body;
-  // const user = db.users.find((user) => user.id === id);
 
-  if (user) {
-    db.users = db.users.map((user) =>
-      user.id === id ? { ...user, score: user.score + 1 } : user
-    );
-    res.json(db.users.find((user) => user.id === id));
-  } else {
-    res.status(400).json("user not found");
-  }
+  db("users")
+    .where("id", "=", id)
+    .increment("score", 1)
+    .returning("score")
+    .then((score) => res.json(score[0]))
+    .catch((err) => res.status(400).json("failed to sending the request"));
 });
 
 app.listen(port, () => {

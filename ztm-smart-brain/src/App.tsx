@@ -136,7 +136,7 @@ function App() {
       {path === "signin" ? (
         <SignIn setUser={setUser} changePath={changePath} />
       ) : path === "register" ? (
-        <Register changePath={changePath} />
+        <Register setUser={setUser} changePath={changePath} />
       ) : (
         <>
           <Logo />
