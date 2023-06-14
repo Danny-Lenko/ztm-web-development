@@ -1,17 +1,18 @@
 import "./InputForm.css";
 
 type Props = {
+  value: string;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onButtonSubmit: () => void;
   buttonIsActive: boolean;
 };
 
 export const InputForm: React.FC<Props> = ({
+  value,
   onInputChange,
   onButtonSubmit,
   buttonIsActive,
 }) => {
-  console.log(buttonIsActive)
 
   return (
     <div>
@@ -25,6 +26,7 @@ export const InputForm: React.FC<Props> = ({
             type="tex"
             placeholder="Enter your name"
             onChange={onInputChange}
+            value={value}
           />
           <button
             className="w-30 grow f4 link ph3 pv2 dib white bg-light-purple submit-btn"

@@ -1,15 +1,16 @@
 type Props = {
   changePath: (path: string) => void;
   path: string;
+  signOut: () => void;
 };
 
-export const Navigation: React.FC<Props> = ({ changePath, path }) => {
+export const Navigation: React.FC<Props> = ({ changePath, path, signOut }) => {
   return (
     <>
       <nav style={{ display: "flex", justifyContent: "flex-end" }}>
         {path === "home" ? (
           <p
-            onClick={() => changePath("signin")}
+            onClick={signOut}
             className="f3 link dim black underline pa3 pointer"
           >
             Sign Out

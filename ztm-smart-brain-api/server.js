@@ -75,12 +75,14 @@ app.post("/register", (req, res) => {
 app.put("/image", (req, res) => {
   const { id } = req.body;
 
+  console.log(id)
+
   return db("users")
     .where("id", "=", id)
     .increment("score", 1)
     .returning("score")
     .then((score) => res.json(score[0]))
-    .catch((err) => res.status(400).json("failed to sending the request"));
+    .catch((err) => res.status(400).json("failed sending the request"));
 });
 
 app.listen(port, () => {

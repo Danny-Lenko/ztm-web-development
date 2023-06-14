@@ -11,6 +11,7 @@ type Props = {
 export const SignIn: React.FC<Props> = ({ changePath, setUser }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const target = e.target;
@@ -37,7 +38,7 @@ export const SignIn: React.FC<Props> = ({ changePath, setUser }) => {
         changePath("home");
       })
 
-      .catch(console.log);
+      .catch((err) => setError(err.response.data));
   };
 
   return (
@@ -86,6 +87,7 @@ export const SignIn: React.FC<Props> = ({ changePath, setUser }) => {
             >
               Register
             </p>
+            {error && <p style={{ color: "red" }}>Error: {error}</p>}
           </div>
         </div>
       </main>

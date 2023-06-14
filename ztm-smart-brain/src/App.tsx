@@ -46,13 +46,17 @@ function App() {
     setPath(path);
   };
 
+  const signOut = () => {
+    setInputValue("");
+    changePath("signin");
+  };
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const target = event.target;
     setInputValue(target.value);
   };
 
   const handleSubmit = () => {
-    console.log("submitted");
     fetch(
       `https://api.clarifai.com/v2/models/${MODEL_ID}/outputs`,
       requestOptions
@@ -65,7 +69,7 @@ function App() {
 
     axios
       .put("http://localhost:8080/image", { id: user?.id })
-      .then((res) => setUser(res.data))
+      .then((res) => setUser({ ...user!, score: res.data.score }))
       .catch(console.log);
   };
 
@@ -132,7 +136,7 @@ function App() {
   return (
     <div className="app">
       <ParticlesBg type="cobweb" bg={true} num={200} color={"#ffffff"} />
-      <Navigation changePath={changePath} path={path} />
+      <Navigation changePath={changePath} path={path} signOut={signOut} />
       {path === "signin" ? (
         <SignIn setUser={setUser} changePath={changePath} />
       ) : path === "register" ? (
@@ -142,6 +146,7 @@ function App() {
           <Logo />
           {user && <Rank name={user.name} entries={user.score} />}
           <InputForm
+            value={inputValue}
             onInputChange={handleInputChange}
             onButtonSubmit={handleSubmit}
             buttonIsActive={buttonIsActive}
