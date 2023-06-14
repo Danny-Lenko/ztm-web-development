@@ -23,78 +23,59 @@ const port = 8080;
 app.use(bodyParser.json());
 app.use(cors());
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
 app.post("/signin", (req, res) => {
   const { email, password } = req.body;
-  // const user = db.users.filter(
-  //   (user) => email === user.email && password === user.password
-  // )[0];
 
-  if (user) {
-    // console.log(
-    //   "true:",
-    //   bcrypt.compareSync(
-    //     "ann",
-    //     "$2b$10$NtWH8mhMYQOpSIi3IEFtm.ex/nZcyQhoH30c0gvSD8lF/FtQwn8je"
-    //   )
-    // ); // true
-    // console.log(
-    //   "false:",
-    //   bcrypt.compareSync(
-    //     "apple",
-    //     "$2b$10$NtWH8mhMYQOpSIi3IEFtm.ex/nZcyQhoH30c0gvSD8lF/FtQwn8je"
-    //   ) // false
-    // );
-    const { id, name, email, score, joined } = user;
-    const userSecure = {
-      id,
-      name,
-      email,
-      score,
-      joined,
-    };
-    res.json(userSecure);
-  } else {
-    res.status(400).json("wrong email or password");
-  }
+  db.select("*")
+    .from("login")
+    .where("email", "=", email)
+    .then((data) => {
+      const isValidPass = bcrypt.compareSync(password, data[0].hash); // true
+      if (isValidPass) {
+        return db
+          .select("*")
+          .from("users")
+          .where("email", "=", email)
+          .then((users) => res.json(users[0]))
+          .catch((err) => res.status(400).json("failed extracting user data"));
+      } else {
+        res.status(400).json("wrong credentials");
+      }
+    })
+    .catch((err) => res.status(400).json("wrong credentials"));
 });
 
 app.post("/register", (req, res) => {
   const { name, email, password } = req.body;
+  const saltRounds = 10;
+  const hash = bcrypt.hashSync(password, saltRounds);
 
-  // const saltRounds = 10;
-  // const hash = bcrypt.hashSync(password, saltRounds);
-  // console.log(hash);
-
-  db("users")
-    .returning("*")
-    .insert({
-      name,
-      email,
-      joined: new Date(),
-    })
-    .then((user) => {
-      res.json(user[0]);
-    })
-    .catch((err) => res.status(400).json("failed to register user"));
-});
-
-app.get("/profile/:id", (req, res) => {
-  // const user = db.users.find((user) => user.id === req.params.id);
-  if (user) {
-    res.json(user);
-  } else {
-    res.status(400).json("user does not exist");
-  }
+  db.transaction((trx) => {
+    return trx
+      .insert({
+        email,
+        hash: hash,
+      })
+      .into("login")
+      .returning("email")
+      .then((returnings) => {
+        return trx("users").returning("*").insert({
+          name,
+          email: returnings[0].email,
+          joined: new Date(),
+        });
+      })
+      .then((users) => {
+        res.json(users[0]);
+      })
+      .catch((err) => res.status(400).json("failed to register user"));
+  });
 });
 
 app.put("/image", (req, res) => {
   const { id } = req.body;
 
-  db("users")
+  return db("users")
     .where("id", "=", id)
     .increment("score", 1)
     .returning("score")
@@ -106,7 +87,11 @@ app.listen(port, () => {
   console.log(`smart-brain app listening on port ${port}`);
 });
 
-function setId(arr) {
-  const lastId = arr[arr.length - 1].id;
-  return +lastId + 1 + "";
-}
+// app.get("/profile/:id", (req, res) => {
+//   // const user = db.users.find((user) => user.id === req.params.id);
+//   if (user) {
+//     res.json(user);
+//   } else {
+//     res.status(400).json("user does not exist");
+//   }
+// });
