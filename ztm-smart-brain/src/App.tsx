@@ -14,11 +14,6 @@ import {
 import "./App.css";
 import axios from "axios";
 
-const PAT = "4449b2845cd94e64b8b1c7e75f2df75f";
-const USER_ID = "devdanny";
-const APP_ID = "my-first-application";
-const MODEL_ID = "face-detection";
-
 export type FaceCoords = {
   leftCol: number;
   topRow: number;
@@ -57,15 +52,10 @@ function App() {
   };
 
   const handleSubmit = () => {
-    fetch(
-      `https://api.clarifai.com/v2/models/${MODEL_ID}/outputs`,
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        calculateFaceLocation(result);
-      })
-      .catch((error) => console.log("error", error));
+    axios
+      .post("http://localhost:8080/detect", { url: inputValue })
+      .then((res) => calculateFaceLocation(res.data))
+      .catch(console.log);
 
     axios
       .put("http://localhost:8080/image", { id: user?.id })
@@ -74,8 +64,7 @@ function App() {
   };
 
   const calculateFaceLocation = (data: any) => {
-    const clarifaiCoords =
-      data.outputs[0].data.regions[0].region_info.bounding_box;
+    const clarifaiCoords = data.data.regions[0].region_info.bounding_box;
 
     const faceCoords = {
       leftCol: clarifaiCoords.left_col * imageWidth,
@@ -85,31 +74,6 @@ function App() {
     };
 
     setFaceBox(faceCoords);
-  };
-
-  const raw = JSON.stringify({
-    user_app_id: {
-      user_id: USER_ID,
-      app_id: APP_ID,
-    },
-    inputs: [
-      {
-        data: {
-          image: {
-            url: inputValue,
-          },
-        },
-      },
-    ],
-  });
-
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      Authorization: "Key " + PAT,
-    },
-    body: raw,
   };
 
   const getImage = (image: HTMLImageElement) => {

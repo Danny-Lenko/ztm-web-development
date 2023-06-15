@@ -6,7 +6,7 @@ import knex from "knex";
 
 import { register } from "./controllers/register.js";
 import { signIn } from "./controllers/signin.js";
-import { image } from "./controllers/image.js";
+import { detectFace, incrementScore } from "./controllers/image.js";
 import { getProfile } from "./controllers/profile.js";
 
 const db = knex({
@@ -32,10 +32,10 @@ app.get("/profile/:id", getProfile(db));
 
 app.post("/signin", signIn(db, bcrypt));
 app.post("/register", register(db, bcrypt));
+app.post("/detect", detectFace());
 
-app.put("/image", image(db));
+app.put("/image", incrementScore(db));
 
 app.listen(port, () => {
   console.log(`smart-brain app listening on port ${port}`);
 });
-
