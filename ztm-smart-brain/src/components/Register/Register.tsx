@@ -38,8 +38,11 @@ export const Register: React.FC<Props> = ({ changePath, setUser }) => {
         password,
       })
       .then((res) => {
-        setUser(res.data);
-        changePath("home");
+        const user = res.data;
+        if (user.email) {
+          setUser(res.data);
+          changePath("home");
+        }
       })
       .catch(console.log);
   };

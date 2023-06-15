@@ -3,6 +3,10 @@ export const register = (db, bcrypt) => (req, res) => {
   const saltRounds = 10;
   const hash = bcrypt.hashSync(password, saltRounds);
 
+  if (!name || !email || !password) {
+    return res.status(400).json('wrong register info')
+  }
+
   db.transaction((trx) => {
     return trx
       .insert({

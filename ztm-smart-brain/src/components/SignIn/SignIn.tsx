@@ -34,10 +34,12 @@ export const SignIn: React.FC<Props> = ({ changePath, setUser }) => {
         password,
       })
       .then((res) => {
-        setUser(res.data);
-        changePath("home");
+        const user = res.data;
+        if (user.email) {
+          setUser(res.data);
+          changePath("home");
+        }
       })
-
       .catch((err) => setError(err.response.data));
   };
 
